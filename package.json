@@ -1,0 +1,44 @@
+{
+  "name": "serverlessguru-code-challenge",
+  "version": "1.0.0",
+  "description": "An Solution for a Code Challenge for ServerlessGuru by Candidata Subbusainathr",
+  "main": "src/lambda/hello.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "npx eslint --ext .js,.ts",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/subbusainath/ServerlessGuru-Code-Challenge.git"
+  },
+  "author": "subbusainathr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues"
+  },
+  "homepage": "https://github.com/subbusainath/ServerlessGuru-Code-Challenge#readme",
+  "dependencies": {
+    "aws-lambda": "^1.0.7",
+    "serverless": "^4.4.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.12.0",
+    "prettier": "^3.3.3",
+    "serverless-plugin-typescript": "^2.1.5",
+    "typescript-eslint": "^8.13.0"
+  },
+  "overrides": {
+    "serverless-plugin-typescript": {
+      "serverless": "$serverless"
+    },
+    "serverless-stack-output": {
+      "serverless": "$serverless"
+    }
+  }
+}
