@@ -1,0 +1,41 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: cloudgenie
+service: notes-app-api-service
+
+build:
+  esbuild: 
+    bundle: true
+    minify: true
+    target: 'node20'
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+
+custom:
+  stage: ${opt:stage, 'dev'}
+  output:
+    file: .serverless/output.json
+
+resources:
+  Outputs:
+    ApiUrl:
+      Description: "The API Gateway URL"
+      Value:
+        Fn::Join:
+          - ""
+          - - "https://"
+            - Ref: ApiGatewayRestApi
+            - ".execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}"
+
+functions:
+  healthcheck:
+    handler: src/lambda/hello.handler
+    description: Healthcheck to ensure the service is up
+    events:
+      - http:
+          path: healthcheck
+          method: get
+
