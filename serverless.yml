@@ -37,6 +37,12 @@ functions:
       - http:
           path: create-note
           method: post
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:PutItem"
+        Resource:
+          - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_NAME}"
 
   get-note:
     handler: src/lambda/getNote.handler
@@ -47,6 +53,12 @@ functions:
       - http:
           path: get-note/{:noteId}
           method: get
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:GetItem"
+        Resource:
+          - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_NAME}"
 
   update-note:
     handler: src/lambda/updateNote.handler
@@ -57,6 +69,12 @@ functions:
       - http:
           path: update-note/{:noteId}
           method: put
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:UpdateItem"
+        Resource:
+          - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_NAME}"
 
   delete-note:
     handler: src/lambda/deleteNote.handler
@@ -67,6 +85,12 @@ functions:
       - http:
           path: delete-note/{:noteId}
           method: delete
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:DeleteItem"
+        Resource:
+          - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_NAME}"
 
 
 resources:
