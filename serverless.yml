@@ -30,6 +30,8 @@ custom:
 functions:
   create-note:
     handler: src/lambda/createNote.handler
+    timeout: 30
+    memorySize: 512
     description: A Function to create note and store it in the database
     events:
       - http:
@@ -38,6 +40,8 @@ functions:
 
   get-note:
     handler: src/lambda/getNote.handler
+    timeout: 30
+    memorySize: 512
     description: A Function to get notes which is stored in the database
     events:
       - http:
@@ -46,6 +50,8 @@ functions:
 
   update-note:
     handler: src/lambda/updateNote.handler
+    timeout: 30
+    memorySize: 512
     description: A Function to update the notes which is stored in the database
     events:
       - http:
@@ -54,6 +60,8 @@ functions:
 
   delete-note:
     handler: src/lambda/deleteNote.handler
+    timeout: 30
+    memorySize: 512
     description: A Function to delete the notes which is stored in the database
     events:
       - http:
@@ -68,14 +76,17 @@ resources:
       Properties:
         TableName: ${self:provider.environment.TABLE_NAME}
         AttributeDefinitions:
-          - AttributeName: "noteId",
+          - AttributeName: "noteId"
             AttributeType: "S"
-          - AttributeName: "createdAt",
+          - AttributeName: "createdAt"
             AttributeType: "S"
         KeySchema:
-          - AttributeName: "noteId",
+          - AttributeName: "noteId"
             KeyType: "HASH"
+          - AttributeName: "createdAt"
+            KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
+      DeletionPolicy: Delete
   Outputs:
     ApiUrl:
       Description: "The API Gateway URL"
