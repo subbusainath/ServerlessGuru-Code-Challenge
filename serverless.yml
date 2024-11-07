@@ -1,6 +1,12 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: cloudgenie
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: notes-app
 service: notes-app-api-service
+
+plugins:
+  - serverless-iam-roles-per-function
+
 
 build:
   esbuild: 
@@ -13,6 +19,8 @@ provider:
   region: us-east-1
   runtime: nodejs20.x
   stage: ${opt:stage, 'dev'}
+  environment:
+    TABLE_NAME: notes-table-${self:provider.stage}
 
 custom:
   stage: ${opt:stage, 'dev'}
@@ -31,11 +39,34 @@ resources:
             - ".execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}"
 
 functions:
-  healthcheck:
-    handler: src/lambda/hello.handler
-    description: Healthcheck to ensure the service is up
+  create-note:
+    handler: src/lambda/createNote.handler
+    description: A Function to create note and store it in the database
     events:
       - http:
-          path: healthcheck
+          path: create-note
+          method: post
+
+  get-note:
+    handler: src/lambda/getNote.handler
+    description: A Function to get notes which is stored in the database
+    events:
+      - http:
+          path: get-note/{:notesId}
           method: get
 
+  update-note:
+    handler: src/lambda/updateNote.handler
+    description: A Function to update the notes which is stored in the database
+    events:
+      - http:
+          path: update-note/{:notesId}
+          method: put
+
+  delete-note:
+    handler: src/lambda/deleteNote.handler
+    description: A Function to delete the notes which is stored in the database
+    events:
+      - http:
+          path: delete-note/{:notesId}
+          method: delete
