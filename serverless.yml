@@ -6,6 +6,8 @@ service: notes-app-api-service
 
 plugins:
   - serverless-iam-roles-per-function
+  - serverless-api-gateway-caching
+  - serverless-offline
 
 
 build:
@@ -19,11 +21,29 @@ provider:
   region: us-east-1
   runtime: nodejs20.x
   stage: ${opt:stage, 'dev'}
+  apiGateway:
+    apiKeys:
+      - name: notes-api-key-${self:provider.stage}
+    usagePlan:
+      quota:
+        # rate limiting and throttling globally
+        limit: 3000
+        period: MONTH
+      throttle:
+        burstLimit: 200
+        rateLimit: 100
   environment:
     TABLE_NAME: notes-table-${self:provider.stage}
 
 custom:
   stage: ${opt:stage, 'dev'}
+  apiGatewayCaching:
+    enabled: true
+    clusterSize: '0.5'
+    ttlInSeconds: 300
+  apiGatewayThrottling:
+    maxRequestPerSecond: 200
+    maxConcurrentRequests: 100
   output:
     file: .serverless/output.json
 
@@ -37,6 +57,7 @@ functions:
       - http:
           path: create-note
           method: post
+          private: true # this makes api key is required
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -53,6 +74,11 @@ functions:
       - http:
           path: get-note/{noteId}
           method: get
+          private: true # this makes api key is required
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.path.noteId
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -69,6 +95,7 @@ functions:
       - http:
           path: update-note/{noteId}
           method: put
+          private: true # this makes api key is required
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -85,6 +112,7 @@ functions:
       - http:
           path: delete-note/{noteId}
           method: delete
+          private: true # this makes api key is required
     iamRoleStatements:
       - Effect: "Allow"
         Action:

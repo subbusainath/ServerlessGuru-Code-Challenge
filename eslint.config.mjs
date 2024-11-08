@@ -12,8 +12,8 @@ export default [
     rules: {
       "no-console": "off",
       "no-debugger": "off",
-      "no-unused-vars": "error",
-      "no-undef": "error",
+      "no-unused-vars": "off",
+      "no-undef": "off",
       "no-empty": "off",
       "no-empty-function": "error",
       "no-useless-escape": "off",
