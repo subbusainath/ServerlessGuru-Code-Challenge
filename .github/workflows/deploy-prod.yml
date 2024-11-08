@@ -7,7 +7,8 @@ on:
 
 jobs:
   deploy_prod:
-    if: github.event.pull_request.merged == true && github.repository.owner.login == 'release-please[bot]'
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'autorelease:') &&
+      contains(github.event.pull_request.labels.*.name,'tagged') }}
     runs-on: ubuntu-latest
 
     steps:
