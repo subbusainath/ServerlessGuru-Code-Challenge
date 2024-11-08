@@ -1,12 +1,18 @@
 {
   "name": "serverlessguru-code-challenge",
   "version": "1.0.0",
-  "description": "An Solution for a Code Challenge for ServerlessGuru by Candidata Subbusainathr",
-  "main": "src/lambda/hello.js",
+  "description": "An Solution for a Code Challenge for ServerlessGuru by Candidate Subbusainath Rengasamy",
   "scripts": {
-    "test": "jest",
-    "lint": "npx eslint --ext .js,.ts",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+    "test": "jest --passWithNoTests",
+    "lint": "eslint .",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "fetchApiKey": "chmod +755 fetchApiKey.sh && ./fetchApiKey.sh",
+    "prepare": "husky"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run format"
+    }
   },
   "repository": {
     "type": "git",
@@ -20,16 +26,16 @@
   "homepage": "https://github.com/subbusainath/ServerlessGuru-Code-Challenge#readme",
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.10.0",
-    "@aws-lambda-powertools/parser": "^2.10.0",
     "@middy/core": "^5.5.1",
     "@middy/http-error-handler": "^5.5.1",
-    "@middy/http-event-normalizer": "^5.5.1",
     "@middy/http-json-body-parser": "^5.5.1",
-    "@middy/validator": "^5.5.1",
     "@types/aws-lambda": "^8.10.145",
     "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1692.0",
     "serverless": "^4.4.7",
+    "serverless-api-gateway-caching": "^1.10.4",
+    "serverless-api-gateway-throttling": "^2.0.3",
+    "serverless-offline": "^14.3.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -43,6 +49,7 @@
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.12.0",
     "http-errors": "^2.0.0",
+    "husky": "^9.1.6",
     "jest": "^29.7.0",
     "prettier": "^3.3.3",
     "serverless-iam-roles-per-function": "^3.2.0",
