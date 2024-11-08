@@ -1,3 +1,5 @@
+import {NoteOutput} from "../../types/global";
+
 export class ResponseClass {
     // Define properties
     public statusCode: number;
@@ -27,7 +29,7 @@ export class ResponseClass {
         statusCode: this.statusCode,
         headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*" // Adjust as per your CORS policy
+            "Access-Control-Allow-Origin": "*"
         },
         body: JSON.stringify({
             message: this.message,

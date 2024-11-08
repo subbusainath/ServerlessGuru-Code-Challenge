@@ -1,32 +1,32 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
+import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda"
 import {ErrorResponseClass, ResponseClass} from "../utils/ResponsesClass/responses";
-import { DynamodbClient } from "../utils/dbClient/dbClientInstance"
-import middyValidator from "../middleware/middyValidator";
+import { DynamodbClient } from "../utils/dbClient/dbClientInstance";
+import middy from "@middy/core";
+import {middleware, logger} from "../middleware/middyValidator";
+import httpErrorHandler from "@middy/http-error-handler";
+import {NoteOutput} from "../types/global";
+
 const dbClient = DynamodbClient.getInstance()
 
-const getNote = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    console.log(`Event received ${JSON.stringify(event, null, 2)}`)
+const getNote = async (event: APIGatewayProxyEvent, _context: Context): Promise<APIGatewayProxyResult> => {
+    logger.info(`Event received ${JSON.stringify(event, null, 2)}`)
+    logger.info(`Context received ${JSON.stringify(_context, null, 2)}`)
 
     try{
         const { noteId } = event.pathParameters
 
-        if (!noteId) {
-            return ErrorResponseClass.getInstance(
-                400,
-                "Note Id is required").
-            getErrorResponse()
-        }
-
-        const params = {
-            TableName: process.env.NOTES_TABLE!,
+        const {TableName, Key} = {
+            TableName: process.env.TABLE_NAME!,
             Key: {
-                notesId: noteId
+                noteId: noteId
             }
         }
 
-        const response = await dbClient.getItem(...params)
+        logger.debug(`Destructured TableName: ${TableName} and Key: ${JSON.stringify(Key, null, 2)}`)
 
-        const note = response.Item
+        const note = await dbClient.getItem(TableName, Key);
+
+        logger.info(`Fetched Note: ${JSON.stringify(note as NoteOutput, null, 2)}`)
 
         return ResponseClass.getInstance(
             200,
@@ -34,7 +34,13 @@ const getNote = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
             note).getResponse()
 
     } catch(error: Error | any) {
-        console.log(`Error: ${error}`)
+        logger.error(`Error: ${error}`)
+        if (error instanceof Error) {
+            return ErrorResponseClass.getInstance(
+                404,
+                error.message).
+            getErrorResponse()
+        }
         return ErrorResponseClass.getInstance(
             500,
             error.message).
@@ -42,4 +48,10 @@ const getNote = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResu
     }
 }
 
-exports.handler = middyValidator(getNote)
+export const handler = middy(getNote, {
+    timeoutEarlyInMillis: 0,
+}).use(middleware()).use(httpErrorHandler(
+    {
+        fallbackMessage: `Lambda got timeout after 30 seconds. Please check your code and try again.`,
+    }
+));
