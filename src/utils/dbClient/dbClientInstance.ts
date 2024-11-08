@@ -12,21 +12,24 @@ export class DynamodbClient {
         return DynamodbClient.instance;
     }
 
-    public getItem = async(tableName: string, key: Record<string, any>) => {
+    public getItem = async(tableName: string, key: Record<string, any>): Promise<DynamoDB.DocumentClient.GetItemOutput> => {
         const params : DynamoDB.DocumentClient.GetItemInput = {
             TableName: tableName,
             Key: key
         }
         try {
-            const getItemResponse = await this.ddbClient.get(params).promise();
-            return getItemResponse.Item;
+            const getItemResponse: DynamoDB.DocumentClient.GetItemOutput = await this.ddbClient.get(params).promise();
+            if (getItemResponse && getItemResponse?.Item) {
+                return getItemResponse.Item;
+            }
+            throw new Error(`Item with key ${JSON.stringify(key)} not found in the table ${tableName}`);
         } catch (error) {
             console.log(error);
-            return null;
+            throw new Error(error)
         }
     }
 
-    public putItem = async(tableName: string, item: Record<string, any>) => {
+    public putItem = async(tableName: string, item: Record<string, any>): Promise<string| Error> => {
         const params : DynamoDB.DocumentClient.PutItemInput = {
             TableName: tableName,
             Item: item
@@ -40,31 +43,39 @@ export class DynamodbClient {
         }
     }
 
-    public deleteItem = async(tableName: string, key: Record<string, any>) => {
+    public deleteItem = async(tableName: string, key: Record<string, any>): Promise< string| Error> => {
         const params : DynamoDB.DocumentClient.DeleteItemInput = {
             TableName: tableName,
-            Key: key
+            Key: key,
+            ReturnValues: "ALL_OLD"
         }
         try {
-            await this.ddbClient.delete(params).promise();
-            return `Item deleted successfully from the table ${tableName}`;
+            const deleteResponse = await this.ddbClient.delete(params).promise();
+            if (deleteResponse?.Attributes) {
+                return {
+                    ...deleteResponse,
+                    message: `Item deleted successfully from the table ${tableName}`
+                }
+            } else {
+                throw new Error(`Item was not found/able to deleted successfully from the table ${tableName}`);
+            }
         } catch (error) {
             console.log(error);
-            throw new Error(`Error deleting item from the table ${tableName}`);
+            throw new Error(error)
         }
     }
 
-    public updateItem = async(tableName: string, key: Record<string, any>, updateExpression: string, expressionAttributeValues: Record<string, any>) => {
+    public updateItem = async(tableName: string, key: Record<string, any>, updateExpression: string, expressionAttributeValues: Record<string, any>): Promise<DynamoDB.DocumentClient.UpdateItemOutput | Error> => {
         const params : DynamoDB.DocumentClient.UpdateItemInput = {
             TableName: tableName,
             Key: key,
             UpdateExpression: updateExpression,
             ExpressionAttributeValues: expressionAttributeValues,
-            ReturnValues: "UPDATED_NEW"
+            ReturnValues: "ALL_NEW"
         }
         try {
-            await this.ddbClient.update(params).promise();
-            return `Item updated successfully from the table ${tableName}`;
+            const updateResponse: DynamoDB.DocumentClient.UpdateItemOutput = await this.ddbClient.update(params).promise();
+            return updateResponse?.Attributes;
         } catch (error) {
             console.log(error);
             throw new Error(`Error updating item from the table ${tableName}`);
@@ -86,4 +97,3 @@ export class DynamodbClient {
         }
     }
 }
-

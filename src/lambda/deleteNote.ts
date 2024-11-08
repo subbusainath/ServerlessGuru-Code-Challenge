@@ -1,39 +1,40 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
+import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda"
 import {ErrorResponseClass, ResponseClass} from "../utils/ResponsesClass/responses";
 import { DynamodbClient } from "../utils/dbClient/dbClientInstance"
-import middyValidator from "../middleware/middyValidator";
+import { logger, middleware } from "../middleware/middyValidator";
+import middy from "@middy/core";
+import httpErrorHandler from "@middy/http-error-handler";
 const dbClient = DynamodbClient.getInstance()
 
-const deleteNote = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    console.log(`Event received ${JSON.stringify(event, null, 2)}`)
-
+const deleteNote = async (event: APIGatewayProxyEvent, _context: Context): Promise<APIGatewayProxyResult> => {
+    logger.info(`Event received ${JSON.stringify(event, null, 2)}`)
+    logger.debug(`Context received ${JSON.stringify(_context, null, 2)}`)
     try{
         const { noteId } = event.pathParameters
 
-        if (!noteId) {
-            return ErrorResponseClass.getInstance(
-                400,
-                "Note Id is required").
-            getErrorResponse()
-        }
-
-        const params = {
-            TableName: process.env.NOTES_TABLE!,
+        const { TableName, Key } = {
+            TableName: process.env.TABLE_NAME!,
             Key: {
-                notesId: noteId
+                noteId: noteId,
             }
         }
 
-        const response = await dbClient.deleteItem(...params)
+        const response = await dbClient.deleteItem(TableName, Key)
 
+        logger.debug(`Response received ${JSON.stringify(response as object, null, 2)}`)
 
         return ResponseClass.getInstance(
             204,
-            "Notes has been deleted Successfully",
-            response as object).getResponse()
+            "Notes has been deleted Successfully").getResponse()
 
     } catch(error: Error | any) {
         console.log(`Error: ${error}`)
+        if (error instanceof Error) {
+            return ErrorResponseClass.getInstance(
+                400,
+                error.message).
+            getErrorResponse()
+        }
         return ErrorResponseClass.getInstance(
             500,
             error.message).
@@ -41,4 +42,8 @@ const deleteNote = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }
 }
 
-exports.handler = middyValidator(deleteNote)
+export const handler = middy(deleteNote, {
+    timeoutEarlyInMillis: 0
+}).use(middleware()).use(httpErrorHandler({
+    fallbackMessage: 'Lambda Got timed out or failed to respond. Please try again later.'
+}))

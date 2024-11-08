@@ -51,7 +51,7 @@ functions:
     description: A Function to get notes which is stored in the database
     events:
       - http:
-          path: get-note/{:noteId}
+          path: get-note/{noteId}
           method: get
     iamRoleStatements:
       - Effect: "Allow"
@@ -67,7 +67,7 @@ functions:
     description: A Function to update the notes which is stored in the database
     events:
       - http:
-          path: update-note/{:noteId}
+          path: update-note/{noteId}
           method: put
     iamRoleStatements:
       - Effect: "Allow"
@@ -83,7 +83,7 @@ functions:
     description: A Function to delete the notes which is stored in the database
     events:
       - http:
-          path: delete-note/{:noteId}
+          path: delete-note/{noteId}
           method: delete
     iamRoleStatements:
       - Effect: "Allow"
@@ -102,13 +102,9 @@ resources:
         AttributeDefinitions:
           - AttributeName: "noteId"
             AttributeType: "S"
-          - AttributeName: "createdAt"
-            AttributeType: "S"
         KeySchema:
           - AttributeName: "noteId"
             KeyType: "HASH"
-          - AttributeName: "createdAt"
-            KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
       DeletionPolicy: Delete
   Outputs:

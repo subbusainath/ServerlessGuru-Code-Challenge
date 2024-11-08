@@ -1,50 +1,100 @@
+import {z} from 'zod';
 import middy from '@middy/core';
-import httpEventNormalizer from '@middy/http-event-normalizer';
-import httpErrorHandler from '@middy/http-error-handler';
-import validator from '@middy/validator';
-import createError from 'http-errors';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import {Logger} from '@aws-lambda-powertools/logger';
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
+import {
+    clearCacheContexts,
+    deleteCacheContext,
+    getCacheContext,
+    setCacheContext
+} from "../utils/Contexts/CacheContexts";
 
-const middleWare = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
-    const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (request): Promise<void> => {
-        const validMethods = ["POST", "PUT", "GET", "DELETE"];
-        const validContentType = "application/json";
+const logger = new Logger({
+    serviceName: 'Notes-App-API-Service',
+    logLevel: 'DEBUG',
+});
 
-        // Validate HTTP method
-        if (!validMethods.includes(request.event.requestContext.httpMethod)) {
-            throw new createError.MethodNotAllowed(`Unsupported method: ${request.event.requestContext.httpMethod}`);
+const notesSchema = z.object({
+    notes: z.array(z.object({
+        userId: z.string().min(1).max(100),
+        content: z.string().min(1).max(1000),
+        createdAt: z.string().optional(),
+    })),
+});
+
+const updateNoteSchema = z.object({
+    userId: z.string().min(1).max(100),
+    content: z.string().min(1).max(1000),
+    createdAt: z.string().optional(),
+})
+
+const validationErrorHandler = (error: any) => {
+    logger.error('Validation Error:', error);
+    return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid request body' }),
+    };
+};
+
+const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+    const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (request) => {
+        if(request.event.httpMethod === 'POST' && request.event.httpMethod === 'PUT'){
+        const body = request.event.body;
+        setCacheContext('x-request-id', request.event.requestContext.requestId);
+        if (!body) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: 'Request body is required' }),
+            } as APIGatewayProxyResult;
         }
 
-        // Validate Content-Type
-        const contentType = request.event.headers['Content-Type'] || request.event.headers['content-type'];
-        if (contentType !== validContentType) {
-            throw new createError.UnsupportedMediaType(`Unsupported Content-Type: ${contentType}`);
+        try {
+            const validatedBody = request.event.httpMethod === "POST" ? notesSchema.parse(body) : updateNoteSchema.parse(body);
+            request.event.body = JSON.stringify(validatedBody)
+        } catch (error) {
+            return validationErrorHandler(error);
+        }
         }
 
-        console.log("Request method and content type are valid");
+        if (request.event.httpMethod === 'GET' && request.event.httpMethod === 'DELETE') {
+            let path = request.event?.pathParameters?.noteId;
+            if (!path) {
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({ error: 'Path Parameter  is required' }),
+                } as APIGatewayProxyResult;
+            }
+            setCacheContext('x-request-id', request.event.requestContext.requestId);
+            setCacheContext('noteId', path);
+        }
     };
 
-    const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (requestContext): Promise<void> => {
-        console.log("Request is processed");
-        console.log(requestContext.response);
+    const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (request) => {
+        deleteCacheContext('x-request-id');
+        clearCacheContexts()
+    };
+
+    const onError: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (request) => {
+        logger.error('Error:', request.error as any);
+        logger.error(
+            `Request Id of the event ${getCacheContext('x-request-id')}`
+        )
+        request.response = {
+            statusCode: 500,
+            body: JSON.stringify({ requestId: getCacheContext('x-request-id'), error: 'Internal Server Error' }),
+        } as APIGatewayProxyResult;
     };
 
     return {
         before,
-        after
+        after,
+        onError,
     };
 };
 
-const applyMiddlewares = (handler: any, eventSchema: object) => {
-    return middy(handler)
-        .use(httpEventNormalizer())
-        .use(httpErrorHandler())
-        .use(validator({ eventSchema }))
-        .use(middleWare());
-};
-
-export const middyValidator = (handler: any, eventSchema: object = {}) => {
-    return applyMiddlewares(handler, eventSchema);
-};
-
-export default middyValidator;
+export {
+    logger,
+    middleware,
+    notesSchema,
+    updateNoteSchema,
+}
