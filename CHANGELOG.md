@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.0.2...v1.1.0) (2024-11-09)
+
+
+### Features
+
+* Added Log Level Setup for logger ([#30](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/30)) ([3005fd3](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/3005fd35861e7bc1aa84cbd1b4700d6ff8e9b060))
+
 ## [1.0.2](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.0.1...v1.0.2) (2024-11-09)
 
 
