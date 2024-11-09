@@ -40,7 +40,7 @@ jobs:
         run: sls package -s dev
 
       - name: Create Artifact for Deployment
-        run: tar -czf project-artifact.tar.gz .serverless
+        run: tar -czf project-artifact.tar.gz .serverless node_modules
 
       - name: Deploy to Development
         env:
@@ -76,6 +76,9 @@ jobs:
 
       - name: List Files
         run: ls -la .serverless
+
+      - name: Install Node modules and Serverless Plugins
+        run: npm ci
 
       - name: Install Serverless Framework
         run: npm install -g serverless
@@ -117,6 +120,9 @@ jobs:
 
       - name: Extract Artifact
         run: tar -xzf project-artifact.tar.gz
+
+      - name: Install Node modules and Serverless Plugins
+        run: npm ci
 
       - name: Install Serverless Framework
         run: npm install -g serverless
