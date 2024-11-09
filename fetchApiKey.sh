@@ -30,5 +30,5 @@ if [ -z "$API_KEY_VALUE" ]; then
   exit 1
 fi
 
-# Print the API Key value
+# Print the API Key value of the endpoint
 echo "API Key for stage ${STAGE}: ${API_KEY_VALUE}"
