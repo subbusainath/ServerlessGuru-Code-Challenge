@@ -4,18 +4,45 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
 
 jobs:
+  check_release_pr:
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.check.outputs.is_release }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event.pull_request.user.login }}" == "release-please[bot]" ]]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_release=false" >> $GITHUB_OUTPUT
+          fi
+
   setup:
+    needs: check_release_pr
+    if: |
+      needs.check_release_pr.outputs.is_release == 'false' && 
+      (github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && 
+      github.event.pull_request.merged == true))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Set up Nodejs
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install Serverless Framework
         run: npm install -g serverless
@@ -23,56 +50,129 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
   deploy_dev:
-    needs: setup
+    needs: [check_release_pr, setup]
+    if: |
+      needs.check_release_pr.outputs.is_release == 'false' && 
+      (github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && 
+      github.event.pull_request.merged == true))
     runs-on: ubuntu-latest
-    environment: DEV
+    environment:
+      name: DEV
+      url: ${{ steps.deployment.outputs.url }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Deploy to Development
+        id: deployment
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
           echo "Deploying to Development Environment"
-          sls deploy -s dev
-        working-directory: .
+          sls deploy -s dev --verbose
 
   deploy_to_qa:
-    needs: deploy_dev
+    needs: [check_release_pr, deploy_dev]
+    if: |
+      needs.check_release_pr.outputs.is_release == 'false' && 
+      (github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && 
+      github.event.pull_request.merged == true))
     runs-on: ubuntu-latest
-    environment: QA
+    environment:
+      name: QA
+      url: ${{ steps.deployment.outputs.url }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Deploy to QA
+        id: deployment
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
           echo "Deploying to QA Environment"
-          sls deploy -s qa
-        working-directory: .
+          sls deploy -s qa --verbose
+
+  release-please:
+    needs: [check_release_pr, deploy_to_qa]
+    if: |
+      needs.check_release_pr.outputs.is_release == 'false' && 
+      (github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && 
+      github.event.pull_request.merged == true))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release Please Action
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: node
 
   deploy_to_prod:
-    if: github.event.pull_request.merged == true
-    needs: deploy_to_qa
+    needs: check_release_pr
+    if: |
+      needs.check_release_pr.outputs.is_release == 'true' && 
+      github.event_name == 'pull_request' && 
+      github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    environment: PROD
+    environment:
+      name: PROD
+      url: ${{ steps.deployment.outputs.url }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Deploy to PROD
+        id: deployment
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
           echo "Deploying to Production Environment"
-          sls deploy -s prod
-        working-directory: .
+          sls deploy -s prod --verbose
