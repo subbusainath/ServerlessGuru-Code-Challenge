@@ -7,13 +7,11 @@
     "lint": "eslint .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "fetchApiKey": "chmod +755 fetchApiKey.sh && ./fetchApiKey.sh",
-    "prepare": "husky"
+    "prepare": "husky && husky install"
   },
   "lint-staged": {
-    "*.{ts,js}": [
-      "eslint --max-warnings 0 .",
-      "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
-    ]
+    "*.+(js|ts)": "eslint --cache --fix",
+    "*.+(js|ts|json)": "prettier --write"
   },
   "repository": {
     "type": "git",
