@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.0.1...v1.0.2) (2024-11-09)
+
+
+### Bug Fixes
+
+* updated the workflow file based on release ([#26](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/26)) ([c389183](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/c3891838452fc619bdb5b607531ce6efdded38f9))
+
 ## [1.0.1](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.0.0...v1.0.1) (2024-11-09)
 
 
