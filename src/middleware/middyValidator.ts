@@ -11,7 +11,7 @@ import {
 
 const logger = new Logger({
   serviceName: 'Notes-App-API-Service',
-  logLevel: 'DEBUG',
+  logLevel: process.env.LOG_LEVEL as 'DEBUG' | 'INFO' | 'WARN' | 'ERROR',
 });
 
 const notesSchema = z.object({
@@ -76,8 +76,7 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
     }
   };
 
-  const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
-  ) => {
+  const after: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async () => {
     deleteCacheContext('x-request-id');
     clearCacheContexts();
   };
@@ -85,7 +84,7 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
   const onError: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
     request,
   ) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     logger.error('Error:', request?.error as any);
     logger.error(`Request Id of the event ${getCacheContext('x-request-id')}`);
     request.response = {

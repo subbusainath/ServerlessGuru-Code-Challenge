@@ -39,6 +39,7 @@ provider:
         rateLimit: 100
   environment:
     TABLE_NAME: notes-table-${self:provider.stage}
+    LOG_LEVEL: ${env:LOG_LEVEL, 'INFO'}
 
 custom:
   stage: ${opt:stage, 'dev'}
