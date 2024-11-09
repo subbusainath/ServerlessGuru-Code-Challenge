@@ -4,6 +4,11 @@ org: cloudgenie
 app: notes-app
 service: notes-app-api-service
 
+package:
+  exclude:
+    - node_modules/**
+    - .git/**
+
 plugins:
   - serverless-iam-roles-per-function
   - serverless-api-gateway-caching
