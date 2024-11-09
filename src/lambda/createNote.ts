@@ -64,6 +64,6 @@ export const handler = middy(createNote, {
   .use(httpJsonBodyParser())
   .use(
     httpErrorHandler({
-      fallbackMessage: `Lambda Got timed out after 30 seconds.Please check your request and try again.`,
+      fallbackMessage: `Lambda Got timed out after 30 seconds or failed to response. Please check the logs and try again.`,
     }),
   );

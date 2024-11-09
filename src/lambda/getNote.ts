@@ -38,10 +38,10 @@ const getNote = async (
     ).getResponse();
   } catch (error: Error | unknown) {
     if (error instanceof Error) {
-    logger.error(`Error: ${error}`);
+      logger.error(`Error: ${error}`);
       return ErrorResponseClass.getInstance(404, error.message).getErrorResponse();
     }
-    logger.error(`Unknown Error: ${error}`)
+    logger.error(`Unknown Error: ${error}`);
     return ErrorResponseClass.getInstance(500, error.message).getErrorResponse();
   }
 };
@@ -52,6 +52,6 @@ export const handler = middy(getNote, {
   .use(middleware())
   .use(
     httpErrorHandler({
-      fallbackMessage: `Lambda got timeout after 30 seconds. Please check your code and try again.`,
+      fallbackMessage: `Lambda Got timed out after 30 seconds or failed to response. Please check the logs and try again.`,
     }),
   );

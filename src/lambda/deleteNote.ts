@@ -28,12 +28,12 @@ const deleteNote = async (
 
     return ResponseClass.getInstance(204, 'Notes has been deleted Successfully').getResponse();
   } catch (error: Error | unknown) {
-      if (error instanceof Error) {
-        logger.error(`Error: ${error}`);
-        return ErrorResponseClass.getInstance(400, error.message).getErrorResponse();
-      }
-      logger.error(`Unknown Error: ${error}`)
-      return ErrorResponseClass.getInstance(500, error.message).getErrorResponse();
+    if (error instanceof Error) {
+      logger.error(`Error: ${error}`);
+      return ErrorResponseClass.getInstance(400, error.message).getErrorResponse();
+    }
+    logger.error(`Unknown Error: ${error}`);
+    return ErrorResponseClass.getInstance(500, error.message).getErrorResponse();
   }
 };
 
@@ -43,6 +43,7 @@ export const handler = middy(deleteNote, {
   .use(middleware())
   .use(
     httpErrorHandler({
-      fallbackMessage: 'Lambda Got timed out or failed to respond. Please try again later.',
+      fallbackMessage:
+        'Lambda Got timed out after 30 seconds or failed to response. Please check the logs and try again.',
     }),
   );
