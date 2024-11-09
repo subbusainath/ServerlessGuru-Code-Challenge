@@ -6,9 +6,8 @@ on:
       - master
 
 jobs:
-  deploy_dev:
+  setup:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -30,8 +29,13 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
+  deploy_dev:
+    needs: setup
+    runs-on: ubuntu-latest
+    environment: DEV
+    steps:
       - name: Deploy to Development
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -40,34 +44,13 @@ jobs:
         run: |
           echo "Deploying to Development Environment"
           sls deploy -s dev
+        working-directory: .
 
   deploy_to_qa:
     needs: deploy_dev
     runs-on: ubuntu-latest
     environment: QA
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set up Nodejs
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install Serverless Framework
-        run: npm install -g serverless
-
-      - name: Install Node modules and Serverless Plugins
-        run: npm ci
-
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Deploy to QA
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -76,46 +59,14 @@ jobs:
         run: |
           echo "Deploying to QA Environment"
           sls deploy -s qa
-
-  create_release_please:
-    permissions:
-      contents: write
-      pull-requests: write
-    needs: deploy_to_qa
-    runs-on: ubuntu-latest
-    steps:
-      - uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: node
+        working-directory: .
 
   deploy_to_prod:
     if: github.event.pull_request.merged == true
-    needs: [deploy_to_qa, create_release_please]
+    needs: deploy_to_qa
     runs-on: ubuntu-latest
+    environment: PROD
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Nodejs
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install Serverless Framework
-        run: npm install -g serverless
-
-      - name: Install Node modules and Serverless Plugins
-        run: npm ci
-
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Deploy to PROD
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -124,3 +75,4 @@ jobs:
         run: |
           echo "Deploying to Production Environment"
           sls deploy -s prod
+        working-directory: .
