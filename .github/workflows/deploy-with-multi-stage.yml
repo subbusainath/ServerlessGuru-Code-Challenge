@@ -32,16 +32,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Package Serverless Project
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-        run: sls package -s dev
-
-      - name: Create Artifact for Deployment
-        run: tar -czf project-artifact.tar.gz .serverless node_modules
-
       - name: Deploy to Development
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -51,12 +41,6 @@ jobs:
           echo "Deploying to Development Environment"
           sls deploy -s dev
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: project-artifact
-          path: project-artifact.tar.gz
-
   deploy_to_qa:
     needs: deploy_dev
     runs-on: ubuntu-latest
@@ -65,23 +49,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
+      - name: Set up Nodejs
+        uses: actions/setup-node@v3
         with:
-          name: project-artifact
-          path: ./
+          node-version: '20'
 
-      - name: Extract Artifact
-        run: tar -xzf project-artifact.tar.gz
-
-      - name: List Files
-        run: ls -la .serverless
+      - name: Install Serverless Framework
+        run: npm install -g serverless
 
       - name: Install Node modules and Serverless Plugins
         run: npm ci
 
-      - name: Install Serverless Framework
-        run: npm install -g serverless
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Deploy to QA
         env:
@@ -90,7 +75,7 @@ jobs:
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
           echo "Deploying to QA Environment"
-          sls deploy --package .serverless -s qa
+          sls deploy -s qa
 
   create_release_please:
     permissions:
@@ -112,20 +97,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Download Artifact
-        uses: actions/download-artifact@v2
+      - name: Set up Nodejs
+        uses: actions/setup-node@v3
         with:
-          name: project-artifact
-          path: ./
+          node-version: '20'
 
-      - name: Extract Artifact
-        run: tar -xzf project-artifact.tar.gz
+      - name: Install Serverless Framework
+        run: npm install -g serverless
 
       - name: Install Node modules and Serverless Plugins
         run: npm ci
 
-      - name: Install Serverless Framework
-        run: npm install -g serverless
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Deploy to PROD
         env:
@@ -134,4 +123,4 @@ jobs:
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
           echo "Deploying to Production Environment"
-          sls deploy --package .serverless -s prod
+          sls deploy -s prod
