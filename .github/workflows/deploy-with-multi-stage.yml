@@ -136,19 +136,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release Please Action
-        uses: googleapis/release-please-action@v3
+        uses: googleapis/release-please-action@v4
         with:
           release-type: node
-          package-name: your-package-name
-          default-branch: master
-          changelog-types: |
-            [
-              {"type":"feat","section":"Features","hidden":false},
-              {"type":"fix","section":"Bug Fixes","hidden":false},
-              {"type":"chore","section":"Miscellaneous","hidden":false},
-              {"type":"docs","section":"Documentation","hidden":false},
-              {"type":"perf","section":"Performance Improvements","hidden":false}
-            ]
 
   deploy_to_prod:
     needs: check_release_pr
