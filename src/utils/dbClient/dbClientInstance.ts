@@ -1,4 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
+import { logger } from '../LoggerClass/logger';
+
 export class DynamodbClient {
   private static instance: DynamodbClient;
   private ddbClient: DynamoDB.DocumentClient;
@@ -29,14 +31,14 @@ export class DynamodbClient {
       }
       throw new Error(`Item with key ${JSON.stringify(key)} not found in the table ${tableName}`);
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       throw new Error(error);
     }
   };
 
   public putItem = async (
     tableName: string,
-    item: Record<string, any>,//eslint-disable-line @typescript-eslint/no-explicit-any
+    item: Record<string, any>, //eslint-disable-line @typescript-eslint/no-explicit-any
   ): Promise<string | Error> => {
     const params: DynamoDB.DocumentClient.PutItemInput = {
       TableName: tableName,
@@ -46,14 +48,14 @@ export class DynamodbClient {
       await this.ddbClient.put(params).promise();
       return `Item added successfully to the table ${tableName}`;
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       throw new Error(`Error adding item to the table ${tableName}`);
     }
   };
 
   public deleteItem = async (
     tableName: string,
-    key: Record<string, any>,//eslint-disable-line @typescript-eslint/no-explicit-any
+    key: Record<string, any>, //eslint-disable-line @typescript-eslint/no-explicit-any
   ): Promise<string | Error> => {
     const params: DynamoDB.DocumentClient.DeleteItemInput = {
       TableName: tableName,
@@ -73,16 +75,16 @@ export class DynamodbClient {
         );
       }
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       throw new Error(error);
     }
   };
 
   public updateItem = async (
     tableName: string,
-    key: Record<string, any>,//eslint-disable-line @typescript-eslint/no-explicit-any
+    key: Record<string, any>, //eslint-disable-line @typescript-eslint/no-explicit-any
     updateExpression: string,
-    expressionAttributeValues: Record<string, any>,//eslint-disable-line @typescript-eslint/no-explicit-any
+    expressionAttributeValues: Record<string, any>, //eslint-disable-line @typescript-eslint/no-explicit-any
   ): Promise<DynamoDB.DocumentClient.UpdateItemOutput | Error> => {
     const params: DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: tableName,
@@ -97,7 +99,7 @@ export class DynamodbClient {
         .promise();
       return updateResponse?.Attributes;
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       throw new Error(`Error updating item from the table ${tableName}`);
     }
   };
@@ -105,7 +107,7 @@ export class DynamodbClient {
   public query = async (
     tableName: string,
     keyConditionExpression: string,
-    expressionAttributeValues: Record<string, any>,//eslint-disable-line @typescript-eslint/no-explicit-any
+    expressionAttributeValues: Record<string, any>, //eslint-disable-line @typescript-eslint/no-explicit-any
   ) => {
     const params: DynamoDB.DocumentClient.QueryInput = {
       TableName: tableName,
@@ -116,7 +118,7 @@ export class DynamodbClient {
       const queryResponse = await this.ddbClient.query(params).promise();
       return queryResponse.Items;
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       return null;
     }
   };
