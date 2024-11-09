@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.0.0...v1.0.1) (2024-11-09)
+
+
+### Bug Fixes
+
+* adding package properties in serverless.yml file ([#21](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/21)) ([636fd30](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/636fd30f5719800a3173d75afc9f4aa282b13bac))
+* installed globally for all the instance of a workflow file ([#17](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/17)) ([ad91e4a](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/ad91e4a59b64d8f9906fbc4d46af617b958d70ca))
+
 ## 1.0.0 (2024-11-08)
 
 
