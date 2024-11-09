@@ -9,15 +9,20 @@ jobs:
   check_release_pr:
     runs-on: ubuntu-latest
     outputs:
-      is_release: ${{ steps.check.outputs.is_release }}
+      is_release: ${{ steps.version-check.outputs.changed }}
     steps:
-      - id: check
+      - uses: actions/checkout@v3
+      - uses: EndBug/version-check@v2
+        id: version-check
+        with:
+          file-name: package.json
+          diff-search: true
+
+      - name: Debug Output
         run: |
-          if [[ "${{ github.event.pull_request.user.login }}" == "release-please[bot]" ]]; then
-            echo "is_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_release=false" >> $GITHUB_OUTPUT
-          fi
+          echo "Version changed: ${{ steps.version-check.outputs.changed }}"
+          echo "Previous version: ${{ steps.version-check.outputs.previous }}"
+          echo "Current version: ${{ steps.version-check.outputs.version }}"
 
   setup:
     needs: check_release_pr
