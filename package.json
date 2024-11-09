@@ -9,10 +9,11 @@
     "fetchApiKey": "chmod +755 fetchApiKey.sh && ./fetchApiKey.sh",
     "prepare": "husky"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && npm run format"
-    }
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --max-warnings 0 .",
+      "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+    ]
   },
   "repository": {
     "type": "git",
@@ -51,6 +52,7 @@
     "http-errors": "^2.0.0",
     "husky": "^9.1.6",
     "jest": "^29.7.0",
+    "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "serverless-iam-roles-per-function": "^3.2.0",
     "serverless-plugin-typescript": "^2.1.5",
