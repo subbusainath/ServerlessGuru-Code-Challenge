@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    types:
-      - closed
-    branches:
-      - master
 
 jobs:
   check_release_pr:
@@ -28,9 +23,7 @@ jobs:
     needs: check_release_pr
     if: |
       needs.check_release_pr.outputs.is_release == 'false' && 
-      (github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && 
-      github.event.pull_request.merged == true))
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -54,9 +47,7 @@ jobs:
     needs: [check_release_pr, setup]
     if: |
       needs.check_release_pr.outputs.is_release == 'false' && 
-      (github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && 
-      github.event.pull_request.merged == true))
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: DEV
@@ -92,9 +83,7 @@ jobs:
     needs: [check_release_pr, deploy_dev]
     if: |
       needs.check_release_pr.outputs.is_release == 'false' && 
-      (github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && 
-      github.event.pull_request.merged == true))
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: QA
@@ -130,9 +119,7 @@ jobs:
     needs: [check_release_pr, deploy_to_qa]
     if: |
       needs.check_release_pr.outputs.is_release == 'false' && 
-      (github.event_name == 'push' || 
-      (github.event_name == 'pull_request' && 
-      github.event.pull_request.merged == true))
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Release Please Action
@@ -144,8 +131,7 @@ jobs:
     needs: check_release_pr
     if: |
       needs.check_release_pr.outputs.is_release == 'true' && 
-      github.event_name == 'pull_request' && 
-      github.event.pull_request.merged == true
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: PROD
