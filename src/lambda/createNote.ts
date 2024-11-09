@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { ErrorResponseClass, ResponseClass } from '../utils/ResponsesClass/responses';
-import { logger, middleware } from '../middleware/middyValidator';
+import { middleware } from '../middleware/middyValidator';
+import { logger } from '../utils/LoggerClass/logger';
 import { v4 as uuid } from 'uuid';
 import { DynamodbClient } from '../utils/dbClient/dbClientInstance';
 import { NoteInput } from '../types/global';

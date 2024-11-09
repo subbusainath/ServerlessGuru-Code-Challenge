@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import middy from '@middy/core';
-import { Logger } from '@aws-lambda-powertools/logger';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
   clearCacheContexts,
@@ -8,11 +7,7 @@ import {
   getCacheContext,
   setCacheContext,
 } from '../utils/Contexts/CacheContexts';
-
-const logger = new Logger({
-  serviceName: 'Notes-App-API-Service',
-  logLevel: process.env.LOG_LEVEL as 'DEBUG' | 'INFO' | 'WARN' | 'ERROR',
-});
+import { logger } from '../utils/LoggerClass/logger';
 
 const notesSchema = z.object({
   notes: z.array(
@@ -103,4 +98,4 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
   };
 };
 
-export { logger, middleware, notesSchema, updateNoteSchema };
+export { middleware, notesSchema, updateNoteSchema };

@@ -2,7 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda
 import { ErrorResponseClass, ResponseClass } from '../utils/ResponsesClass/responses';
 import { DynamodbClient } from '../utils/dbClient/dbClientInstance';
 import middy from '@middy/core';
-import { middleware, logger } from '../middleware/middyValidator';
+import { middleware } from '../middleware/middyValidator';
+import { logger } from '../utils/LoggerClass/logger';
 import httpErrorHandler from '@middy/http-error-handler';
 import { NoteOutput } from '../types/global';
 

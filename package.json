@@ -7,6 +7,7 @@
     "lint": "eslint .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "fetchApiKey": "chmod +755 fetchApiKey.sh && ./fetchApiKey.sh",
+    "local": "sls offline",
     "prepare": "husky && husky install"
   },
   "lint-staged": {
