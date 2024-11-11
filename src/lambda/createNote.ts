@@ -18,7 +18,7 @@ const createNote = async (
   logger.info(`Event received ${JSON.stringify(event, null, 2)}`);
   logger.info(`Context received ${JSON.stringify(_context, null, 2)}`);
   try {
-    const body: NoteInput = event.body as NoteInput;
+    const body = JSON.parse(event.body || '{}') as NoteInput;
 
     logger.info(`Body received ${JSON.stringify(body.notes, null, 2)}`);
     logger.debug(`Request Id of the event ${getCacheContext('x-request-id')}`);
@@ -61,8 +61,8 @@ const createNote = async (
 export const handler = middy(createNote, {
   timeoutEarlyInMillis: 0,
 })
-  .use(middleware())
   .use(httpJsonBodyParser())
+  .use(middleware())
   .use(
     httpErrorHandler({
       fallbackMessage: `Lambda Got timed out after 30 seconds or failed to response. Please check the logs and try again.`,

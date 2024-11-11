@@ -1,5 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 import { logger } from '../LoggerClass/logger';
+import { LogItemMessage } from '@aws-lambda-powertools/logger/lib/cjs/types';
 
 export class DynamodbClient {
   private static instance: DynamodbClient;
@@ -17,7 +18,7 @@ export class DynamodbClient {
   public getItem = async (
     tableName: string,
     key: Record<string, any>, //eslint-disable-line @typescript-eslint/no-explicit-any
-  ): Promise<DynamoDB.DocumentClient.GetItemOutput> => {
+  ): Promise<DynamoDB.DocumentClient.GetItemOutput | Error> => {
     const params: DynamoDB.DocumentClient.GetItemInput = {
       TableName: tableName,
       Key: key,
@@ -30,9 +31,9 @@ export class DynamodbClient {
         return getItemResponse.Item;
       }
       throw new Error(`Item with key ${JSON.stringify(key)} not found in the table ${tableName}`);
-    } catch (error) {
-      logger.error(error);
-      throw new Error(error);
+    } catch (error: unknown) {
+      logger.error(error as LogItemMessage);
+      throw new Error(error as unknown as string);
     }
   };
 
@@ -47,8 +48,8 @@ export class DynamodbClient {
     try {
       await this.ddbClient.put(params).promise();
       return `Item added successfully to the table ${tableName}`;
-    } catch (error) {
-      logger.error(error);
+    } catch (error: unknown) {
+      logger.error(error as LogItemMessage);
       throw new Error(`Error adding item to the table ${tableName}`);
     }
   };
@@ -67,6 +68,7 @@ export class DynamodbClient {
       if (deleteResponse?.Attributes) {
         return {
           ...deleteResponse,
+          name: 'Item deleted successfully from the table',
           message: `Item deleted successfully from the table ${tableName}`,
         };
       } else {
@@ -74,9 +76,9 @@ export class DynamodbClient {
           `Item was not found/able to deleted successfully from the table ${tableName}`,
         );
       }
-    } catch (error) {
-      logger.error(error);
-      throw new Error(error);
+    } catch (error: unknown) {
+      logger.error(error as LogItemMessage);
+      throw new Error(error as unknown as string);
     }
   };
 
@@ -97,10 +99,14 @@ export class DynamodbClient {
       const updateResponse: DynamoDB.DocumentClient.UpdateItemOutput = await this.ddbClient
         .update(params)
         .promise();
-      return updateResponse?.Attributes;
-    } catch (error) {
-      logger.error(error);
-      throw new Error(`Error updating item from the table ${tableName}`);
+      if (!updateResponse.Attributes) {
+        throw new Error(`Error updating item from the table ${tableName}`);
+      } else {
+        return updateResponse.Attributes as DynamoDB.DocumentClient.UpdateItemOutput;
+      }
+    } catch (error: unknown) {
+      logger.error(error as LogItemMessage);
+      throw new Error(error as unknown as string);
     }
   };
 
@@ -117,8 +123,8 @@ export class DynamodbClient {
     try {
       const queryResponse = await this.ddbClient.query(params).promise();
       return queryResponse.Items;
-    } catch (error) {
-      logger.error(error);
+    } catch (error: unknown) {
+      logger.error(error as LogItemMessage);
       return null;
     }
   };

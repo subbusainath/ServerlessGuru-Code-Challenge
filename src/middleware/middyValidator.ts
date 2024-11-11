@@ -37,10 +37,11 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
   const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
     request,
   ) => {
-    if (request.event.httpMethod === 'POST' && request.event.httpMethod === 'PUT') {
+    if (['POST', 'PUT'].includes(request.event.httpMethod)) {
       const body = request.event.body;
       setCacheContext('x-request-id', request.event.requestContext.requestId);
       if (!body) {
+        logger.info(`Request Id of the event inside if block ${getCacheContext('x-request-id')}`);
         return {
           statusCode: 400,
           body: JSON.stringify({ error: 'Request body is required' }),
@@ -53,12 +54,16 @@ const middleware = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxy
             ? notesSchema.parse(body)
             : updateNoteSchema.parse(body);
         request.event.body = JSON.stringify(validatedBody);
+        logger.debug(`Parsed body: ${JSON.stringify(validatedBody)}`);
+        logger.debug(`Request Id of the event ${getCacheContext('x-request-id')}`);
+        logger.debug(`Request Id of the event ${getCacheContext('x-request-id')}`);
       } catch (error) {
-        return validationErrorHandler(error);
+        logger.error(`Error: ${error}`);
+        return validationErrorHandler(error as Error);
       }
     }
 
-    if (request.event.httpMethod === 'GET' && request.event.httpMethod === 'DELETE') {
+    if (request.event.httpMethod === 'GET' || request.event.httpMethod === 'DELETE') {
       const path = request.event?.pathParameters?.noteId;
       if (!path) {
         return {

@@ -3,7 +3,7 @@
   "version": "1.2.0",
   "description": "An Solution for a Code Challenge for ServerlessGuru by Candidate Subbusainath Rengasamy",
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "jest --detectOpenHandles --colors --runInBand --verbose",
     "lint": "eslint .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "fetchApiKey": "chmod +755 fetchApiKey.sh && ./fetchApiKey.sh",
@@ -41,6 +41,8 @@
   "devDependencies": {
     "@aws-sdk/util-dynamodb": "^3.686.0",
     "@eslint/js": "^9.14.0",
+    "@jest/globals": "^29.7.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/http-errors": "^2.0.4",
     "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.13.0",

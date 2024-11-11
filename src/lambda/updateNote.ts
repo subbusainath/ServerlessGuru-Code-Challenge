@@ -17,17 +17,12 @@ const updateNote = async (
   try {
     const { noteId } = event.pathParameters;
 
-    const body = event.body as Note;
+    const body = JSON.parse(event.body || '{}') as Note;
 
-    if (
-      !body.content ||
-      (body.content?.length === 0 && !body.createdAt) ||
-      body.createdAt?.length === 0
-    ) {
-      return ErrorResponseClass.getInstance(
-        400,
-        'Content & CreatedAt is required',
-      ).getErrorResponse();
+    logger.info(`Date received in the body ${body}`);
+
+    if (!body.content && body.content?.length === 0) {
+      return ErrorResponseClass.getInstance(400, 'Content is required').getErrorResponse();
     }
 
     body.createdAt = new Date().getTime().toString();

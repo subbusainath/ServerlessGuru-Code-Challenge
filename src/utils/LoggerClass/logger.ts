@@ -5,7 +5,7 @@ class LoggerService {
   private static instance: Logger;
   public static getInstance(): Logger {
     if (!LoggerService.instance) {
-      const logLevel = process.env.LOG_LEVEL! as logLevelType;
+      const logLevel = (process.env.LOG_LEVEL! as logLevelType) || 'INFO';
       LoggerService.instance = new Logger({
         serviceName: 'Notes-App-API-Service',
         logLevel,
