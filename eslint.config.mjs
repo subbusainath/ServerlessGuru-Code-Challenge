@@ -23,7 +23,7 @@ export default [
     }
   },
   {
-    ignores: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**", "**/__tests__/**", "**/__mocks__/**"],
+    ignores: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**", "**/__tests__/**", "**/__mocks__/**", "**/*.spec.ts"],
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
