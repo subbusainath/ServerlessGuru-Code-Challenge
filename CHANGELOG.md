@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.2.0...v1.3.0) (2024-11-11)
+
+
+### Features
+
+* Added jest test suite only to test Contexts and DBClient ([#34](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/34)) ([1009659](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/10096598f15110e70faa0d59ce94dc741771abfa))
+
 ## [1.2.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.1.0...v1.2.0) (2024-11-09)
 
 
