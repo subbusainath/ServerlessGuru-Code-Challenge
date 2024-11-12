@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.4.0...v1.5.0) (2024-11-12)
+
+
+### Features
+
+* updated the readme file with architecture diagram, pipeline images as per request ([#38](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/38)) ([e04b02a](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/e04b02a9d0579af78e19df008df8bc247a4da57f))
+
 ## [1.4.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.3.0...v1.4.0) (2024-11-12)
 
 
