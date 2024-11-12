@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.5.0...v1.5.1) (2024-11-12)
+
+
+### Bug Fixes
+
+* read me architecture image ext change and fix ([#40](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/40)) ([a09ce89](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/a09ce89437d5183807c5fe3e5af0b6cb5cb0462a))
+
 ## [1.5.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.4.0...v1.5.0) (2024-11-12)
 
 
