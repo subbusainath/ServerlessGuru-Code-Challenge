@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.3.0...v1.4.0) (2024-11-12)
+
+
+### Features
+
+* Added Individual package for lambda, install plugin called serverless-add-api-key to add the key and make it not echo on stack output and used native typescript support of serverless v4.4.7 ([#36](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/issues/36)) ([09fd8d4](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/commit/09fd8d4373599515415e5022b3f90c39472e4890))
+
 ## [1.3.0](https://github.com/subbusainath/ServerlessGuru-Code-Challenge/compare/v1.2.0...v1.3.0) (2024-11-11)
 
 
