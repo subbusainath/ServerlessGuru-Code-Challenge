@@ -47,3 +47,30 @@ Please feel free to include any of the following to show additional experience:
 
 
 # Solution
+
+## CI/CD Pipelines
+
+### Dev, QA and Release Please Deployment Flow
+![](assets/Ci-CD%20for%20ServerlessGuru-Normal%20flow.png "CI/CD Pipeline Workflow Image setup, dev, qa and release please")
+
+### Jest Test Flow During Pull request raise on the master branch
+![](assets\cicd-test.png)
+
+### Final Prod Deployment Flow
+![](assets/serverless-guru-prod.png)
+
+## Architecture Diagram of the Note Api CRUD
+
+![](assets\NotesApi Arcj.drawio.png)
+
+### Flow of the CI/CD Pipeline 
+- Once you raise a Pull request to **master** branch **test.yml** will automatically runs the unit test for your files
+- Once you merge that created Pull Request to **master** branch, the deployment workflow will start to setup your environment in the pipeline and start to deploy your resource into DEV, QA 
+- And it will create a release please note for your service which you created here with another Pull request **master**. Why? because, you need to be the authorize one to merge the code to PRODUCTION environment.
+- Once we merge that PR, action will trigger the deployment automatically for PRODUCTION
+- In this Solution,we use Aws API Key as an authorizer.So, you need this API KEY to execute this Api Endpoints. For that, you need to run the following script in your terminal
+```shell
+npm run fetchApiKey -- YOUR_STAGE_NAME -- --profile YOUR_PROFILE_NAME/leave this as default
+```
+- based on your stage name you provide as well as the profile you provide. you can get the apikey to use.
+- I have packaged the lambdas individually
