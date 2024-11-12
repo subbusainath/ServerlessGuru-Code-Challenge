@@ -61,7 +61,7 @@ Please feel free to include any of the following to show additional experience:
 
 ## Architecture Diagram of the Note Api CRUD
 
-![](assets\NotesApi Arcj.drawio.png)
+![](assets\NotesApi Arcj.jpg)
 
 ### Flow of the CI/CD Pipeline 
 - Once you raise a Pull request to **master** branch **test.yml** will automatically runs the unit test for your files
