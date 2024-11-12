@@ -34,7 +34,7 @@ const config: Config.InitialOptions = {
   // A list of paths to modules that run some code to configure or set up the testing environment
   // setupFiles: ['<rootDir>/jest.setup.js'],
   // Ignore certain directories
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.build/'],
   // Transform files with ts-jest
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
